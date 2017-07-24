@@ -5,7 +5,7 @@
 # Schedule to run 1-2 times per day.
 
 #### CHANGE THE VARIABLES BELOW TO MATCH YOUR INSTALL
-SCREENCONNECT_SSL_PORT="443"
+SCREENCONNECT_SSL_PORT="8040"
 USER=cpanelusername
 DOMAIN=domainwithoutextension
 EXTENSION=com
