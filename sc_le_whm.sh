@@ -15,8 +15,8 @@ WORKING_DIRECTORY=$(pwd)
 SCREENCONNECT_DIRECTORY=${scdir:-/opt/screenconnect}
 HTTPLISTENER_DIRECTORY="$SCREENCONNECT_DIRECTORY/App_Runtime/etc/.mono/httplistener"
 CERT_HOME="/home/$USER/ssl"
-KEY_NAME=$(grep "Key for “$DOMAIN.$EXTENSION”:" $CERT_HOME/ssl.db | sed "s/      Key for “$DOMAIN.$EXTENSION”: //g").key
-BASE=$(echo $KEY_NAME | colrm 13)
+KEY_NAME=$(grep "Key for “$DOMAIN.$EXTENSION”.*:" $CERT_HOME/ssl.db | sed "s/      Key for “$DOMAIN.$EXTENSION”.*: //g").key
+BASE=$(echo $KEY_NAME | colrm 12)
 CERT_NAME=$(grep "id: ${DOMAIN}_${EXTENSION}_${BASE}" $CERT_HOME/ssl.db | sed 's/      id: //g' ).crt
 
 C1=$(cksum $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.cer | colrm 16)
