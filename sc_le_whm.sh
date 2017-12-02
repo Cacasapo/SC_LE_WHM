@@ -6,27 +6,39 @@
 
 #### CHANGE THE VARIABLES BELOW TO MATCH YOUR INSTALL
 SCREENCONNECT_SSL_PORT="8040"
-USER=cpanelusername
-DOMAIN=domainwithoutextension
-EXTENSION=com
+USER=linuxuser
+DOMAIN=domainname.com
 ####
 
 WORKING_DIRECTORY=$(pwd)
 SCREENCONNECT_DIRECTORY=${scdir:-/opt/screenconnect}
 HTTPLISTENER_DIRECTORY="$SCREENCONNECT_DIRECTORY/App_Runtime/etc/.mono/httplistener"
-CERT_HOME="/home/$USER/ssl"
-KEY_NAME=$(grep "Key for “$DOMAIN.$EXTENSION”.*:" $CERT_HOME/ssl.db | sed "s/      Key for “$DOMAIN.$EXTENSION”.*: //g").key
-BASE=$(echo $KEY_NAME | colrm 12)
-CERT_NAME=$(grep "id: ${DOMAIN}_${EXTENSION}_${BASE}" $CERT_HOME/ssl.db | sed 's/      id: //g' ).crt
+COMBINED="/var/cpanel/ssl/apache_tls/$DOMAIN/combined"
+KEY_NAME="$DOMAIN".key
+CERT_NAME="$DOMAIN".cert
+
+mkdir /tmp/sc_le
+chmod 700 /tmp/sc_le
+cd /tmp/sc_le
+
+csplit -k -f both $COMBINED '/END CERTIFICATE/+1' {1}
+csplit -k -f split both00 '/END /+1' {1}
+mv split00 $KEY_NAME
+mv split01 $CERT_NAME
 
 C1=$(cksum $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.cer | colrm 16)
-C2=$(cksum  $CERT_HOME/certs/$CERT_NAME | colrm 16)
-   if [[ "$C1" != "$C2" ]]
-   then    
-		openssl rsa -in "$CERT_HOME/keys/$KEY_NAME" -inform PEM -outform PVK -pvk-none -out "$WORKING_DIRECTORY/$SCREENCONNECT_SSL_PORT.pvk"
-		[[ ! -d "$HTTPLISTENER_DIRECTORY/backup" ]] && mkdir $HTTPLISTENER_DIRECTORY/backup
-		\cp $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.* $HTTPLISTENER_DIRECTORY/backup
-		\cp $CERT_HOME/certs/$CERT_NAME $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.cer
-		mv $WORKING_DIRECTORY/$SCREENCONNECT_SSL_PORT.pvk $HTTPLISTENER_DIRECTORY
-		service screenconnect restart
-   fi
+C2=$(cksum  $CERT_NAME | colrm 16)
+echo $C1
+echo $C2
+
+	if [[ "$C1" = "$C2" ]]
+		then
+			openssl rsa -in "$KEY_NAME" -inform PEM -outform PVK -pvk-none -out "$SCREENCONNECT_SSL_PORT.pvk"
+			[[ ! -d "$HTTPLISTENER_DIRECTORY/backup" ]] && mkdir $HTTPLISTENER_DIRECTORY/backup && chown $USER. $HTTPLISTENER_DIRECTORY/backup
+			\cp $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.* $HTTPLISTENER_DIRECTORY/backup
+			\cp $CERT_NAME $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.cer
+			mv $SCREENCONNECT_SSL_PORT.pvk $HTTPLISTENER_DIRECTORY
+			service screenconnect restart
+		fi
+cd
+rm -fr /tmp/sc_le
