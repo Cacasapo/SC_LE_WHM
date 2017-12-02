@@ -1,6 +1,6 @@
 #!/bin/bash
 # Slacker 2017 - Use and modify at your own risk.
-# Script for using LE certificates in a WHM install with Screenconnect.
+# Script for using certificates in a WHM install with Screenconnect.
 # Screenconnect must already be configured to use SSL. 
 # Schedule to run 1-2 times per day.
 
