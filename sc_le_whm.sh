@@ -19,8 +19,8 @@ mkdir /tmp/sc_le
 chmod 700 /tmp/sc_le
 cd /tmp/sc_le
 
-csplit -k -f both $COMBINED '/END CERTIFICATE/+1' {1}
-csplit -k -f split both00 '/END /+1' {1}
+csplit -k -f both $COMBINED '/END CERTIFICATE/+1' {1}  > /dev/null 2>&1
+csplit -k -f split both00 '/END /+1' {1}  > /dev/null 2>&1
 mv split00 $KEY_NAME
 mv split01 $CERT_NAME
 
