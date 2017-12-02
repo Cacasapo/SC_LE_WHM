@@ -27,7 +27,7 @@ mv split01 $CERT_NAME
 C1=$(cksum $HTTPLISTENER_DIRECTORY/$SCREENCONNECT_SSL_PORT.cer | colrm 16)
 C2=$(cksum  $CERT_NAME | colrm 16)
 
-	if [[ "$C1" = "$C2" ]]
+	if [[ "$C1" != "$C2" ]]
 		then
 			openssl rsa -in "$KEY_NAME" -inform PEM -outform PVK -pvk-none -out "$SCREENCONNECT_SSL_PORT.pvk"
 			[[ ! -d "$HTTPLISTENER_DIRECTORY/backup" ]] && mkdir $HTTPLISTENER_DIRECTORY/backup
